@@ -19,8 +19,10 @@ public:
     void processBaseDate(std::ifstream&);
     void compute();
     void displayEvent();
+    void computeDistance(std::ifstream&);
 private:
     static int numberOfEvents;
+    static float threshold;
     std::vector<eventRecord> events; 
     std::vector<std::vector<int> > stat;
     

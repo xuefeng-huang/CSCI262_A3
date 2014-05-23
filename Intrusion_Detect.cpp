@@ -19,6 +19,8 @@ Intrusion_Detect::Intrusion_Detect() {
 
 int Intrusion_Detect::numberOfEvents = 0;
 
+float Intrusion_Detect::threshold = 0.0;
+
 void Intrusion_Detect::processEvent(std::ifstream& eventFile)
 {
     
@@ -112,6 +114,13 @@ void Intrusion_Detect::compute()
         stdev = sqrt(squareTotal / stat.size());
         events[i].stdev = stdev;
     }
+    
+    //compute threshold
+    for (vector<eventRecord>::iterator i = events.begin(); i != events.end(); i++)
+    {
+        threshold += i ->weight;
+    }
+    threshold *= 2;
 }
 
 //display event statistics
@@ -124,7 +133,41 @@ void Intrusion_Detect::displayEvent()
         cout << setw(30) << left << i ->eventName << setiosflags(ios::fixed) << setw(8) << setprecision(2) <<
                 left << i ->average << setw(8) << left << i ->stdev << setw(8) << left << i ->weight << endl;
     }
+    
+    cout << endl << "Threshold: " << threshold << endl << endl;
 }
 
+//compute and display test event
+void Intrusion_Detect::computeDistance(ifstream& testEventFile)
+{
+    string line;
+    int lineNum = 1;
+    float totalDistance;
+    
+    while(getline(testEventFile, line))
+    {
+        totalDistance = 0.0;
+        cout << "Line " << lineNum << ": " << line << '\t';
+        
+        char* str = const_cast<char*>(line.c_str());
+        
+        char* pch = strtok(str, ":");
+        
+        for(vector<eventRecord>::iterator i = events.begin(); i != events.end(); i++)
+        {
+            totalDistance += fabs((atoi(pch) - i ->average) / i ->stdev) * i ->weight;
+            pch = strtok(NULL, ":");
+        }
+        
+        cout << fixed << setprecision(2) << "Distance: " << totalDistance << '\t';
+        
+        if(totalDistance >= threshold)
+            cout << "Alarm: " << "YES!!!" << endl;
+        else 
+            cout << "Alarm: " << "NO" << endl;
+        
+        lineNum++;
+    }
+}
 
 

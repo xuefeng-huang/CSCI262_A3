@@ -45,6 +45,12 @@ int main(int argc, char** argv) {
     detection.processBaseDate(baseDataFile);
     detection.compute();
     detection.displayEvent();
+    detection.computeDistance(testEventFile);
+    
+    //close files
+    eventFile.close();
+    baseDataFile.close();
+    testEventFile.close();
     return 0;
 }
 
